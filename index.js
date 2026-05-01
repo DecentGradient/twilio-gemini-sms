@@ -1,14 +1,15 @@
 require('dotenv').config();
 const express = require('express');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenAI } = require('@google/genai');
 const twilio = require('twilio');
+const bodyParser = require('body-parser');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 app.post('/api/sms', async (req, res) => {
     const incomingMessage = req.body.Body;
@@ -17,11 +18,12 @@ app.post('/api/sms', async (req, res) => {
     console.log(`Received message from ${fromNumber}: ${incomingMessage}`);
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
-        
         const prompt = `You are a helpful AI assistant replying to SMS messages. Keep it brief. The user says: ${incomingMessage}`;
-        const result = await model.generateContent(prompt);
-        const responseText = result.response.text();
+        const result = await ai.models.generateContent({
+            model: "gemini-3.1-pro",
+            contents: prompt
+        });
+        const responseText = result.text;
         
         const twiml = new twilio.twiml.MessagingResponse();
         twiml.message(responseText);
