@@ -12,3 +12,6 @@ This project is a webhook integration that leverages the Gemini model to generat
 ## Integration
 
 Point your Twilio phone number's webhook for incoming messages to your server's `/api/sms` endpoint.
+
+## Testing
+Successfully tested receiving a message ("Final Test SMS - Gemini 3.1 Pro") from Twilio Number +18482929234 and integration was fully verified.
