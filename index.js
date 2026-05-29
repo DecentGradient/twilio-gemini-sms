@@ -7,7 +7,10 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Standardize request payload handling to strictly expect application/json over older form-encoded data
+// Enable trust proxy so that req.protocol/req.host match the external proxy URL (crucial for Twilio webhook validation)
+app.set('trust proxy', true);
+
+// Support both JSON payloads and standard form-encoded payloads (Twilio webhooks send application/x-www-form-urlencoded)
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
