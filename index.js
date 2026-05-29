@@ -7,11 +7,19 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Enable trust proxy so that req.protocol/req.host match the external proxy URL (crucial for Twilio webhook validation)
+app.set('trust proxy', true);
+
+// Support both JSON payloads and standard form-encoded payloads (Twilio webhooks send application/x-www-form-urlencoded)
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-app.post('/api/sms', async (req, res) => {
+// Setup Twilio webhook validation middleware to authenticate inbound requests
+// This securely confirms that incoming requests genuinely originated from Twilio
+// Ensure process.env.TWILIO_AUTH_TOKEN is set in the environment
+app.post('/api/sms', twilio.webhook({ validate: true }), async (req, res) => {
     const incomingMessage = req.body.Body;
     const fromNumber = req.body.From;
 
